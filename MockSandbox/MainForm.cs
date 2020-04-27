@@ -28,6 +28,23 @@ namespace InjectionMocking
         private void Form1_Load(object sender, EventArgs e)
         {
             MockingEngine.EnsureLoaded();
+            MockingEngine.Decorate(typeof(Helper), "GetText", 0, new MockingFunc<string>(OverrideGetText));
         }
+
+        private string OverrideGetText(ref bool handled)
+        {
+            handled = true;
+            return "something special";
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(Helper.GetText());
+        }
+    }
+
+    internal static class Helper
+    {
+        public static string GetText() => "everything as usual";
     }
 }

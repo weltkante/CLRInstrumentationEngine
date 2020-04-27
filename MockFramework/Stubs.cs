@@ -112,7 +112,7 @@ namespace Microsoft.Diagnostics.Instrumentation.Extensions.Mocking
     internal static class NativeMethods
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void Decorate(int methodId, long assemblyNamePtr, long moduleNamePtr, long typeNamePtr, long methodNamePtr, uint argsCount)
+        internal static int Decorate(int methodId, long assemblyNamePtr, long moduleNamePtr, long typeNamePtr, long methodNamePtr, uint argsCount)
         {
             throw new InvalidOperationException("Mocking Engine has not been loaded.");
         }

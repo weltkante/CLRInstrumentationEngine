@@ -72,9 +72,34 @@ namespace InjectionMocking
             }
         }
 
-        public static void Decorate(string assembly, string module, string type, string method, int arguments, Delegate callback)
+        public static void Decorate(Type type, string method, uint arguments, Delegate callback)
         {
-            throw new NotImplementedException();
+            Decorate(type.Assembly.GetName().Name, type.Module.Name, type.FullName, method, arguments, callback);
+        }
+
+        public static void Decorate(string assembly, string module, string type, string method, uint arguments, Delegate callback)
+        {
+            IntPtr pAssemblyName = IntPtr.Zero;
+            IntPtr pModuleName = IntPtr.Zero;
+            IntPtr pTypeName = IntPtr.Zero;
+            IntPtr pMethodName = IntPtr.Zero;
+            try
+            {
+                pAssemblyName = Marshal.StringToHGlobalUni(assembly);
+                pModuleName = Marshal.StringToHGlobalUni(module);
+                pTypeName = Marshal.StringToHGlobalUni(type);
+                pMethodName = Marshal.StringToHGlobalUni(method);
+
+                if (Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Decorate(0, pAssemblyName.ToInt64(), pModuleName.ToInt64(), pTypeName.ToInt64(), pMethodName.ToInt64(), arguments) != 0)
+                    throw new InvalidOperationException("Failed to attach extension");
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pMethodName);
+                Marshal.FreeHGlobal(pTypeName);
+                Marshal.FreeHGlobal(pModuleName);
+                Marshal.FreeHGlobal(pAssemblyName);
+            }
         }
     }
 }

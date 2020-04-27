@@ -10,81 +10,86 @@ EXTERN_C const GUID CLSID_MockingEngine = __uuidof(CMockingEngine);
 OBJECT_ENTRY_AUTO(CLSID_MockingEngine, CMockingEngine)
 
 static HRESULT STDMETHODCALLTYPE DecorateStub(
-	_In_ CMockingEngine* pThis,
-	_In_ const __int32 methodId,
-	_In_ const __int64 assemblyPtr,
-	_In_ const __int64 modulePtr,
-	_In_ const __int64 typeNamePtr,
-	_In_ const __int64 methodNamePtr,
-	_In_ const __int32 argumentCount)
+    _In_ CMockingEngine* pThis,
+    _In_ const __int32 methodId,
+    _In_ const __int64 assemblyPtr,
+    _In_ const __int64 modulePtr,
+    _In_ const __int64 typeNamePtr,
+    _In_ const __int64 methodNamePtr,
+    _In_ const __int32 argumentCount)
 {
-	return pThis->Decorate(methodId, assemblyPtr, modulePtr, typeNamePtr, methodNamePtr, argumentCount);
+    return pThis->Decorate(methodId, assemblyPtr, modulePtr, typeNamePtr, methodNamePtr, argumentCount);
 }
 
 HRESULT CMockingEngine::InternalInitialize(const IProfilerManagerSptr& spHost)
 {
-	auto hr = S_OK;
+    auto hr = S_OK;
 
-	Agent::Instrumentation::CMethodInstrumentationInfoCollectionSptr spInteropMethods;
-	IfFailRet(Create(spInteropMethods));
+    Agent::Instrumentation::CMethodInstrumentationInfoCollectionSptr spInteropMethods;
+    IfFailRet(Create(spInteropMethods));
 
-	Agent::Instrumentation::Native::CNativeInstanceMethodInstrumentationInfoSptr spInteropMethod;
+    Agent::Instrumentation::Native::CNativeInstanceMethodInstrumentationInfoSptr spInteropMethod;
 
-	// For all AppInsights extensions, turn ngen off.
-	IUnknownSptr spIUnknown;
-	IfFailRet(spHost->GetCorProfilerInfo(&spIUnknown));
-	ICorProfilerInfoQiSptr spICorProfilerInfo = spIUnknown;
-	IfFailRet(spICorProfilerInfo->SetEventMask(COR_PRF_DISABLE_ALL_NGEN_IMAGES));
+    // For all AppInsights extensions, turn ngen off.
+    IUnknownSptr spIUnknown;
+    IfFailRet(spHost->GetCorProfilerInfo(&spIUnknown));
+    ICorProfilerInfoQiSptr spICorProfilerInfo = spIUnknown;
+    IfFailRet(spICorProfilerInfo->SetEventMask(COR_PRF_DISABLE_ALL_NGEN_IMAGES));
 
-	IfFailRet(
-		Create(
-			spInteropMethod,
-			Agent::Interop::WildcardName,
-			Agent::Interop::WildcardName,
-			L"Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Decorate",
-			6,
-			0,
-			reinterpret_cast<UINT_PTR>(this),
-			reinterpret_cast<UINT_PTR>(&DecorateStub)));
-	IfFailRet(spInteropMethods->Add(spInteropMethod));
+    IfFailRet(
+        Create(
+            spInteropMethod,
+            Agent::Interop::WildcardName,
+            Agent::Interop::WildcardName,
+            L"Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Decorate",
+            6,
+            0,
+            reinterpret_cast<UINT_PTR>(this),
+            reinterpret_cast<UINT_PTR>(&DecorateStub)));
+    IfFailRet(spInteropMethods->Add(spInteropMethod));
 
-	IfFailRet(CreateAndBuildUp(m_spInteropHandler, spInteropMethods));
-	m_spHost = spHost;
-	return hr;
+    IfFailRet(CreateAndBuildUp(m_spInteropHandler, spInteropMethods));
+    m_spHost = spHost;
+    return hr;
 }
 
 HRESULT CMockingEngine::InternalShouldInstrumentMethod(const IMethodInfoSptr& spMethodInfo, BOOL isRejit, BOOL* pbInstrument)
 {
-	*pbInstrument = FALSE;
+    *pbInstrument = FALSE;
 
-	HRESULT hr = S_OK;
-	IfFailRet(hr = m_spInteropHandler->ShouldInstrument(spMethodInfo));
+    HRESULT hr = S_OK;
+    IfFailRet(hr = m_spInteropHandler->ShouldInstrument(spMethodInfo));
 
-	*pbInstrument = (hr == S_OK);
-	return S_OK;
+    *pbInstrument = (hr == S_OK);
+    return S_OK;
 }
 
 HRESULT CMockingEngine::InternalInstrumentMethod(const IMethodInfoSptr& spMethodInfo, BOOL isRejit)
 {
-	IfFailRet(m_spInteropHandler->Instrument(spMethodInfo));
+    IfFailRet(m_spInteropHandler->Instrument(spMethodInfo));
 
-	return S_OK;
+    return S_OK;
 }
 
 HRESULT CMockingEngine::InternalAllowInlineSite(const IMethodInfoSptr& spMethodInfoInlinee, const IMethodInfoSptr& spMethodInfoCaller, BOOL* pbAllowInline)
 {
-	HRESULT hr = S_OK;
+    HRESULT hr = S_OK;
 
-	IfFailRetHresult(
-		m_spInteropHandler->AllowInline(
-			spMethodInfoInlinee, spMethodInfoCaller), hr);
+    IfFailRetHresult(
+        m_spInteropHandler->AllowInline(
+            spMethodInfoInlinee, spMethodInfoCaller), hr);
 
-	*pbAllowInline = (hr != S_OK);
+    *pbAllowInline = (hr != S_OK);
 
-	return hr;
+    return hr;
 }
 
 HRESULT CMockingEngine::Decorate(const __int32 methodId, const __int64 assemblyPtr, const __int64 modulePtr, const __int64 typeNamePtr, const __int64 methodNamePtr, const __int32 argumentCount)
 {
-	return S_OK;
+    ATL::CComBSTR bstrAssemblyName(reinterpret_cast<const wchar_t*>(assemblyPtr));
+    ATL::CComBSTR bstrModuleName(reinterpret_cast<const wchar_t*>(modulePtr));
+    ATL::CComBSTR bstrTypeName(reinterpret_cast<const wchar_t*>(typeNamePtr));
+    ATL::CComBSTR bstrMethodName(reinterpret_cast<const wchar_t*>(methodNamePtr));
+
+    return S_OK;
 }
