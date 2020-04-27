@@ -1,10 +1,12 @@
 #pragma once
 
-#include <atlbase.h>
-#include <atlcom.h>
-#include <wrl/client.h>
+#include "../src/ExtensionsCommon/Precompiled.h"
 
-#include <cor.h>
-#include "InstrumentationEngine.h"
+//#include <atlbase.h>
+//#include <atlcom.h>
+//#include <wrl/client.h>
 
-using namespace Microsoft::WRL;
+//#include <cor.h>
+//#include "InstrumentationEngine.h"
+
+//using namespace Microsoft::WRL;
