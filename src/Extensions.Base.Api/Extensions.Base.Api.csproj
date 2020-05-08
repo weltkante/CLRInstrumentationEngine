@@ -21,6 +21,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
+    <Compile Include="..\..\MockStub\Stubs.cs">
+      <Link>Stubs.cs</Link>
+    </Compile>
     <Compile Include="BeginCallbacks.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

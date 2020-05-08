@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -27,8 +29,12 @@ namespace InjectionMocking
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            var callback1 = GetType().GetMethod(nameof(OverrideGetText), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance) ?? throw new InvalidOperationException();
+            var callback2 = GetType().GetMethod(nameof(OverrideShowValue), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance) ?? throw new InvalidOperationException();
+
             MockingEngine.EnsureLoaded();
-            MockingEngine.Decorate(typeof(Helper), "GetText", 0, new MockingFunc<string>(OverrideGetText));
+            MockingEngine.Decorate(typeof(Helper), nameof(Helper.GetText), 0, callback1, this);
+            MockingEngine.Decorate(typeof(Helper), nameof(Helper.ShowValue), 1, callback2, this);
         }
 
         private string OverrideGetText(ref bool handled)
@@ -37,14 +43,27 @@ namespace InjectionMocking
             return "something special";
         }
 
+        private void OverrideShowValue(ref bool handled, int value)
+        {
+            handled = true;
+            MessageBox.Show($"something special: {value}");
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             MessageBox.Show(Helper.GetText());
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Helper.ShowValue(42);
         }
     }
 
     internal static class Helper
     {
         public static string GetText() => "everything as usual";
+
+        public static void ShowValue(int value) => MessageBox.Show($"everything as usual: {value}");
     }
 }

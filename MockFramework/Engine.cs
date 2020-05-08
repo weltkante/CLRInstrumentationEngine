@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,12 +73,12 @@ namespace InjectionMocking
             }
         }
 
-        public static void Decorate(Type type, string method, uint arguments, Delegate callback)
+        public static void Decorate(Type type, string method, uint arguments, MethodInfo callback, object target)
         {
-            Decorate(type.Assembly.GetName().Name, type.Module.Name, type.FullName, method, arguments, callback);
+            Decorate(type.Assembly.GetName().Name, type.Module.Name, type.FullName, method, arguments, callback, target);
         }
 
-        public static void Decorate(string assembly, string module, string type, string method, uint arguments, Delegate callback)
+        public static void Decorate(string assembly, string module, string type, string method, uint arguments, MethodInfo callback, object target)
         {
             IntPtr pAssemblyName = IntPtr.Zero;
             IntPtr pModuleName = IntPtr.Zero;
@@ -90,7 +91,8 @@ namespace InjectionMocking
                 pTypeName = Marshal.StringToHGlobalUni(type);
                 pMethodName = Marshal.StringToHGlobalUni(method);
 
-                if (Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Decorate(0, pAssemblyName.ToInt64(), pModuleName.ToInt64(), pTypeName.ToInt64(), pMethodName.ToInt64(), arguments) != 0)
+                var callbackId = Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Register(callback, target);
+                if (Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Decorate(pAssemblyName.ToInt64(), pModuleName.ToInt64(), pTypeName.ToInt64(), pMethodName.ToInt64(), arguments, callbackId) != 0)
                     throw new InvalidOperationException("Failed to attach extension");
             }
             finally

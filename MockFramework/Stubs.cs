@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -112,7 +115,19 @@ namespace Microsoft.Diagnostics.Instrumentation.Extensions.Mocking
     internal static class NativeMethods
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static int Decorate(int methodId, long assemblyNamePtr, long moduleNamePtr, long typeNamePtr, long methodNamePtr, uint argsCount)
+        internal static int Decorate(long assemblyNamePtr, long moduleNamePtr, long typeNamePtr, long methodNamePtr, uint argsCount, int methodId)
+        {
+            throw new InvalidOperationException("Mocking Engine has not been loaded.");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static int Register(MethodInfo method, object target)
+        {
+            throw new InvalidOperationException("Mocking Engine has not been loaded.");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Unregister(int stubId)
         {
             throw new InvalidOperationException("Mocking Engine has not been loaded.");
         }
