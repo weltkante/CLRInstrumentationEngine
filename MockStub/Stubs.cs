@@ -41,8 +41,10 @@ namespace Microsoft.Diagnostics.Instrumentation.Extensions.Mocking
                 throw new ArgumentNullException(nameof(method));
 
             var returnType = method.ReturnType;
-            if (returnType.IsByRef || returnType.IsPointer)
+            if (returnType.IsByRef)
                 throw new NotSupportedException();
+            else if (returnType.IsPointer)
+                returnType = typeof(IntPtr);
 
             var hasReturnType = (returnType != typeof(void));
 
@@ -59,13 +61,15 @@ namespace Microsoft.Diagnostics.Instrumentation.Extensions.Mocking
 
             Type[] genericArgs = new Type[argCount];
 
-            for (int i = 1, j = 0; i < methodArgs.Length; i++, j++)
+            for (int i = 1; i < methodArgs.Length; i++)
             {
                 var arg = methodArgs[i].ParameterType;
-                if (arg.IsByRef || arg.IsPointer)
+                if (arg.IsByRef)
                     throw new NotSupportedException();
+                else if (arg.IsPointer)
+                    arg = typeof(IntPtr);
 
-                genericArgs[j] = arg;
+                genericArgs[i - 1] = arg;
             }
 
             if (hasReturnType)

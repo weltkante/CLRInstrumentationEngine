@@ -35,10 +35,10 @@ namespace MockSandboxCore
             return "something special";
         }
 
-        private void OverrideShowValue(ref bool handled, int value)
+        private void OverrideShowValue(ref bool handled, IntPtr value)
         {
             handled = true;
-            MessageBox.Show($"something special: {value}");
+            MessageBox.Show($"something special: {value.ToInt64()}");
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
@@ -50,20 +50,20 @@ namespace MockSandboxCore
             }
         }
 
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        private unsafe void radioButton3_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton3.Checked)
             {
                 radioButton1.Checked = true;
-                Helper.ShowValue(42);
+                Helper.ShowValue(new IntPtr(42).ToPointer());
             }
         }
     }
 
-    internal static class Helper
+    internal unsafe static class Helper
     {
         public static string GetText() => "everything as usual";
 
-        public static void ShowValue(int value) => MessageBox.Show($"everything as usual: {value}");
+        public static void ShowValue(void* ptrvalue) => MessageBox.Show($"everything as usual: {new IntPtr(ptrvalue).ToInt64()}");
     }
 }

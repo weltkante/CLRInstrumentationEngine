@@ -425,10 +425,20 @@ HRESULT CMockingRecord::Instrument(const IProfilerManagerSptr& spManager, const 
         ATL::CComPtr<IType> pArgumentType;
         IfFailRet(pMethodParameters->Next(1, &pArgumentType, &n));
         if (!n) return E_FAIL;
-        IfFailRet(pArgumentType->AddToSignature(pSigDelegateTypeSpecific));
+        CorElementType etype;
+        IfFailRet(pArgumentType->GetCorElementType(&etype));
+        if (etype == CorElementType::ELEMENT_TYPE_PTR)
+            IfFailRet(pSigDelegateTypeSpecific->AddElementType(CorElementType::ELEMENT_TYPE_I));
+        else
+            IfFailRet(pArgumentType->AddToSignature(pSigDelegateTypeSpecific));
     }
     if (hasReturnValue) {
-        IfFailRet(pMethodReturnType->AddToSignature(pSigDelegateTypeSpecific));
+        CorElementType etype;
+        IfFailRet(pMethodReturnType->GetCorElementType(&etype));
+        if (etype == CorElementType::ELEMENT_TYPE_PTR)
+            IfFailRet(pSigDelegateTypeSpecific->AddElementType(CorElementType::ELEMENT_TYPE_I));
+        else
+            IfFailRet(pMethodReturnType->AddToSignature(pSigDelegateTypeSpecific));
     }
     PCCOR_SIGNATURE sigDelegateTypeSpecificData;
     IfFailRet(pSigDelegateTypeSpecific->GetCorSignaturePtr(&sigDelegateTypeSpecificData));
@@ -453,10 +463,20 @@ HRESULT CMockingRecord::Instrument(const IProfilerManagerSptr& spManager, const 
         ATL::CComPtr<IType> pArgumentType;
         IfFailRet(pMethodParameters->Next(1, &pArgumentType, &n));
         if (!n) return E_FAIL;
-        IfFailRet(pArgumentType->AddToSignature(pSigGetDelegateSpecific));
+        CorElementType etype;
+        IfFailRet(pArgumentType->GetCorElementType(&etype));
+        if (etype == CorElementType::ELEMENT_TYPE_PTR)
+            IfFailRet(pSigGetDelegateSpecific->AddElementType(CorElementType::ELEMENT_TYPE_I));
+        else
+            IfFailRet(pArgumentType->AddToSignature(pSigGetDelegateSpecific));
     }
     if (hasReturnValue) {
-        IfFailRet(pMethodReturnType->AddToSignature(pSigGetDelegateSpecific));
+        CorElementType etype;
+        IfFailRet(pMethodReturnType->GetCorElementType(&etype));
+        if (etype == CorElementType::ELEMENT_TYPE_PTR)
+            IfFailRet(pSigGetDelegateSpecific->AddElementType(CorElementType::ELEMENT_TYPE_I));
+        else
+            IfFailRet(pMethodReturnType->AddToSignature(pSigGetDelegateSpecific));
     }
     PCCOR_SIGNATURE sigGetDelegateSpecificData;
     IfFailRet(pSigGetDelegateSpecific->GetCorSignaturePtr(&sigGetDelegateSpecificData));
