@@ -187,6 +187,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="..\bin\Debug\AnyCPU\Microsoft.Diagnostics.Instrumentation.Extensions.Base.dll">
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(Configuration)\x86;$(SolutionDir)bin\$(Configuration)\x64;%(DestinationFolders)</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(Configuration)\x86;$(SolutionDir)bin\$(Configuration)\x64;%(DestinationFolders)</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(Configuration)\x86;$(SolutionDir)bin\$(Configuration)\x64;%(DestinationFolders)</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(Configuration)\x86;$(SolutionDir)bin\$(Configuration)\x64;%(DestinationFolders)</DestinationFolders>
+    </CopyFileToFolders>
     <None Include="library.def" />
   </ItemGroup>
   <ItemGroup>
