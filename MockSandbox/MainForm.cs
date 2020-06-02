@@ -33,17 +33,17 @@ namespace InjectionMocking
             var callback2 = GetType().GetMethod(nameof(OverrideShowValue), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance) ?? throw new InvalidOperationException();
 
             MockingEngine.EnsureLoaded();
-            MockingEngine.Decorate(typeof(Helper), nameof(Helper.GetText), 0, callback1, this);
-            MockingEngine.Decorate(typeof(Helper), nameof(Helper.ShowValue), 1, callback2, this);
+            MockingEngine.Decorate(typeof(Helper), nameof(Helper.GetText), 0, callback1, null);
+            MockingEngine.Decorate(typeof(Helper), nameof(Helper.ShowValue), 1, callback2, null);
         }
 
-        private string OverrideGetText(ref bool handled)
+        private static string OverrideGetText(ref bool handled)
         {
             handled = true;
             return "something special";
         }
 
-        private void OverrideShowValue(ref bool handled, int value)
+        private static void OverrideShowValue(ref bool handled, int value)
         {
             handled = true;
             MessageBox.Show($"something special: {value}");
