@@ -14,6 +14,15 @@ namespace MockSandboxCore
 {
     public partial class Form1 : Form
     {
+        [STAThread]
+        static void Main()
+        {
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+
         public Form1()
         {
             InitializeComponent();
