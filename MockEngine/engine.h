@@ -151,6 +151,14 @@ public:
         _In_ const __int32 argumentCount,
         _In_ const __int32 methodId);
 
+    HRESULT DecorateUnsafe(
+        _In_ const __int64 assemblyPtr,
+        _In_ const __int64 modulePtr,
+        _In_ const __int64 typeNamePtr,
+        _In_ const __int64 methodNamePtr,
+        _In_ const __int32 argumentCount,
+        _In_ const __int64 methodPtr);
+
 private:
     IProfilerManagerSptr m_spHost;
     Agent::Interop::CInteropInstrumentationHandlerUptr m_spInteropHandler;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,26 +11,6 @@ using Microsoft.Diagnostics.Instrumentation.Extensions.Base;
 
 namespace InjectionMocking
 {
-    public delegate void MockingAction(ref bool handled);
-    public delegate void MockingAction<in TArg1>(ref bool handled, TArg1 arg1);
-    public delegate void MockingAction<in TArg1, in TArg2>(ref bool handled, TArg1 arg1, TArg2 arg2);
-    public delegate void MockingAction<in TArg1, in TArg2, in TArg3>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3);
-    public delegate void MockingAction<in TArg1, in TArg2, in TArg3, in TArg4>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4);
-    public delegate void MockingAction<in TArg1, in TArg2, in TArg3, in TArg4, in TArg5>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5);
-    public delegate void MockingAction<in TArg1, in TArg2, in TArg3, in TArg4, in TArg5, in TArg6>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, TArg6 arg6);
-    public delegate void MockingAction<in TArg1, in TArg2, in TArg3, in TArg4, in TArg5, in TArg6, in TArg7>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, TArg6 arg6, TArg7 arg7);
-    public delegate void MockingAction<in TArg1, in TArg2, in TArg3, in TArg4, in TArg5, in TArg6, in TArg7, in TArg8>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, TArg6 arg6, TArg7 arg7, TArg8 arg8);
-
-    public delegate TResult MockingFunc<out TResult>(ref bool handled);
-    public delegate TResult MockingFunc<out TResult, in TArg1>(ref bool handled, TArg1 arg1);
-    public delegate TResult MockingFunc<out TResult, in TArg1, in TArg2>(ref bool handled, TArg1 arg1, TArg2 arg2);
-    public delegate TResult MockingFunc<out TResult, in TArg1, in TArg2, in TArg3>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3);
-    public delegate TResult MockingFunc<out TResult, in TArg1, in TArg2, in TArg3, in TArg4>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4);
-    public delegate TResult MockingFunc<out TResult, in TArg1, in TArg2, in TArg3, in TArg4, in TArg5>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5);
-    public delegate TResult MockingFunc<out TResult, in TArg1, in TArg2, in TArg3, in TArg4, in TArg5, in TArg6>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, TArg6 arg6);
-    public delegate TResult MockingFunc<out TResult, in TArg1, in TArg2, in TArg3, in TArg4, in TArg5, in TArg6, in TArg7>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, TArg6 arg6, TArg7 arg7);
-    public delegate TResult MockingFunc<out TResult, in TArg1, in TArg2, in TArg3, in TArg4, in TArg5, in TArg6, in TArg7, in TArg8>(ref bool handled, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, TArg6 arg6, TArg7 arg7, TArg8 arg8);
-
     public static class MockingEngine
     {
         public static bool IsLoaded { get; private set; }
@@ -91,9 +72,20 @@ namespace InjectionMocking
                 pTypeName = Marshal.StringToHGlobalUni(type);
                 pMethodName = Marshal.StringToHGlobalUni(method);
 
-                var callbackId = Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Register(callback, target);
-                if (Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Decorate(pAssemblyName.ToInt64(), pModuleName.ToInt64(), pTypeName.ToInt64(), pMethodName.ToInt64(), arguments, callbackId) != 0)
-                    throw new InvalidOperationException("Failed to attach extension");
+                bool useV1 = false;
+
+                if (useV1 || callback is DynamicMethod || target != null)
+                {
+                    var callbackId = Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Register(callback, target);
+                    if (Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.Decorate(pAssemblyName.ToInt64(), pModuleName.ToInt64(), pTypeName.ToInt64(), pMethodName.ToInt64(), arguments, callbackId) != 0)
+                        throw new InvalidOperationException("Failed to attach extension");
+                }
+                else
+                {
+                    System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(callback.MethodHandle);
+                    if (Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.DecorateUnsafe(pAssemblyName.ToInt64(), pModuleName.ToInt64(), pTypeName.ToInt64(), pMethodName.ToInt64(), arguments, callback.MethodHandle.GetFunctionPointer().ToInt64()) != 0)
+                        throw new InvalidOperationException("Failed to attach extension");
+                }
             }
             finally
             {

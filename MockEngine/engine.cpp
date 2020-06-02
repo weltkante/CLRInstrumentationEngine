@@ -20,6 +20,18 @@ static HRESULT STDMETHODCALLTYPE DecorateStub(
     return pThis->Decorate(assemblyPtr, modulePtr, typeNamePtr, methodNamePtr, argumentCount, methodId);
 }
 
+static HRESULT STDMETHODCALLTYPE DecorateUnsafeStub(
+    _In_ CMockingEngine* pThis,
+    _In_ const __int64 assemblyPtr,
+    _In_ const __int64 modulePtr,
+    _In_ const __int64 typeNamePtr,
+    _In_ const __int64 methodNamePtr,
+    _In_ const __int32 argumentCount,
+    _In_ const __int32 methodId)
+{
+    return pThis->DecorateUnsafe(assemblyPtr, modulePtr, typeNamePtr, methodNamePtr, argumentCount, methodId);
+}
+
 HRESULT CMockingEngine::InternalInitialize(const IProfilerManagerSptr& spHost)
 {
     auto hr = S_OK;
@@ -45,6 +57,18 @@ HRESULT CMockingEngine::InternalInitialize(const IProfilerManagerSptr& spHost)
             0,
             reinterpret_cast<UINT_PTR>(this),
             reinterpret_cast<UINT_PTR>(&DecorateStub)));
+    IfFailRet(spInteropMethods->Add(spInteropMethod));
+
+    IfFailRet(
+        Create(
+            spInteropMethod,
+            Agent::Interop::WildcardName,
+            Agent::Interop::WildcardName,
+            L"Microsoft.Diagnostics.Instrumentation.Extensions.Mocking.NativeMethods.DecorateUnsafe",
+            6,
+            0,
+            reinterpret_cast<UINT_PTR>(this),
+            reinterpret_cast<UINT_PTR>(&DecorateUnsafeStub)));
     IfFailRet(spInteropMethods->Add(spInteropMethod));
 
     IfFailRet(CreateAndBuildUp(m_spInteropHandler, spInteropMethods));
@@ -254,6 +278,11 @@ HRESULT CMockingEngine::Decorate(const __int64 assemblyPtr, const __int64 module
     //    return E_FAIL;
 
     //return foundInCurrentDomain ? S_OK : S_FALSE;
+}
+
+HRESULT CMockingEngine::DecorateUnsafe(const __int64 assemblyPtr, const __int64 modulePtr, const __int64 typeNamePtr, const __int64 methodNamePtr, const __int32 argumentCount, const __int64 methodPtr)
+{
+    return S_OK;
 }
 
 #pragma region CMockingRecord

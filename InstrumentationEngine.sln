@@ -72,15 +72,16 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MockEngine", "MockEngine\MockEngine.vcxproj", "{E389B8E7-2681-4A9E-AC15-6CF796EDA6AB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6575257C-4947-48DC-95CD-67160FBF5BBA} = {6575257C-4947-48DC-95CD-67160FBF5BBA}
+		{0ECB9DDD-0000-0000-0000-000000000000} = {0ECB9DDD-0000-0000-0000-000000000000}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockSandbox", "MockSandbox\MockSandbox.csproj", "{6575257C-4947-48DC-95CD-67160FBF5BBA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockStub", "MockStub\MockStub.csproj", "{B6609838-BF9C-42C8-84A6-62624901DA9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockSandboxCore", "MockSandboxCore\MockSandboxCore.csproj", "{C04DC3BC-2C8A-4064-9BFC-91053B9847A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MockSandboxCore", "MockSandboxCore\MockSandboxCore.csproj", "{C04DC3BC-2C8A-4064-9BFC-91053B9847A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockFrameworkCore", "MockFrameworkCore\MockFrameworkCore.csproj", "{AAD3D6BF-313B-46EB-9083-A49FB704616A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MockFrameworkCore", "MockFrameworkCore\MockFrameworkCore.csproj", "{AAD3D6BF-313B-46EB-9083-A49FB704616A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MockEngineCore", "MockEngineCore\MockEngineCore.vcxproj", "{2FD7F2F3-0D59-4263-ADFF-7EF1B8D1DC9E}"
 	ProjectSection(ProjectDependencies) = postProject
